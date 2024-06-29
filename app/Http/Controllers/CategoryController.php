@@ -25,20 +25,22 @@ class CategoryController extends Controller
             'parent' => $request->parent,
         ]);
 
-        return redirect()->route('categories.index');
+        return response()->json(['success' => true]);
     }
 
-    public function storeSubcategory(Request $request) {
+    public function storeSubcategory(Request $request)
+    {
         $request->validate([
             'name' => 'required|string|max:255',
-            'parent_id' => 'required|exists:categories,id',
+            'parent' => 'required|exists:categories,id',
         ]);
 
         Category::create([
             'name' => $request->name,
-            'parent' => $request->parent_id,
+            'parent' => $request->parent,
         ]);
 
-        return redirect()->route('categories.index');
+        return response()->json(['success' => true]);
     }
+
 }

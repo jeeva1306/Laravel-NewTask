@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 //     return view('welcome');
 // });
 
-Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+Route::get('/', [CategoryController::class, 'index'])->name('categories.index');
 Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
 Route::post('/subcategories', [CategoryController::class, 'storeSubcategory'])->name('subcategories.store');
+Route::get('/subcategories/{parentId}', [CategoryController::class, 'getSubcategories'])->name('categories.getSubcategories');

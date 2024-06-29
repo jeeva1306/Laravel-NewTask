@@ -4,65 +4,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Category List</title>
+    <title>New Task</title>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 
 <body>
     <div class="container mt-5">
-        <h1>Category List</h1>
+        <h1>Category Task</h1>
 
-        <form action="{{ route('categories.store') }}" method="POST">
+        <form id="category-form">
             @csrf
             <div class="form-group">
-                <label for="parent_id">Parent Category</label>
-                <select name="parent_id" id="parent_id" class="form-control">
-                    <option value="">Null</option>
+                <label for="category_dropdown">Category</label>
+                <select name="category_dropdown" id="category_dropdown" class="form-control">
+                    <option value="">Category List</option>
                     @foreach ($parentCategories as $category)
                         <option value="{{ $category->id }}">{{ $category->name }}</option>
                     @endforeach
                 </select>
             </div>
-            <div class="form-group mt-3">
-                <label for="name">Category Name</label>
-                <input type="text" name="name" id="name" class="form-control" required>
+            <div class="form-group mt-3" id="category-input">
+                <label for="category_name">Category Name</label>
+                <input type="text" name="name" id="category_name" class="form-control">
+                <button type="button" class="btn btn-primary mt-3" id="add-category">Add Category</button>
             </div>
-            <button type="submit" class="btn btn-primary mt-3">Add Category</button>
         </form>
 
-        <form action="{{ route('subcategories.store') }}" method="POST">
-            @csrf
-            <div class="form-group mt-4">
-                <label for="parent_category">Select Parent Category</label>
-                <select name="parent_id" id="parent_category" class="form-control" required>
-                    <option value="">Select Parent Category</option>
-                    @foreach ($parentCategories as $category)
-                        <option value="{{ $category->id }}">{{ $category->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="form-group mt-3">
-                <label for="subcategory_name">Subcategory Name</label>
-                <input type="text" name="name" id="subcategory_name" class="form-control" required>
-            </div>
-            <button type="submit" class="btn btn-primary mt-3">Add Subcategory</button>
-        </form>
+        <div class="form-group mt-3" id="subcategory-input" style="display: none;">
+            <label for="subcategory_name">Subcategory Name</label>
+            <input type="text" name="subcategory_name" id="subcategory_name" class="form-control">
+            <button type="button" class="btn btn-primary mt-3" id="add-subcategory">Add Subcategory</button>
+        </div>
 
-        <h2 class="mt-5">Categories</h2>
+        <h2 class="mt-5">Categories and SubCategories List</h2>
         <ul class="list-group">
             @foreach ($parentCategories as $category)
-                <li class="list-group-item" style="background-color: green;">{{ $category->name }}</li>
+                <li class="list-group-item"><strong>{{ $category->name }}</strong></li>
                 @if ($category->child->isNotEmpty())
-                    <ul class="list-group ml-4">
+                    <ul class="list-group ml-4 mt-2">
                         @foreach ($category->child as $child)
-                            <li class="list-group-item" style="background-color: red;">{{ $child->name }}</li>
-                            @if ($child->child->isNotEmpty())
-                                <ul class="list-group ml-4">
-                                    @foreach ($child->child as $subchild)
-                                        <li class="list-group-item">{{ $subchild->name }}</li>
-                                    @endforeach
-                                </ul>
-                            @endif
+                            <li class="list-group-item" style="font-style: italic; color: red;">>> {{ $child->name }}</li>
                         @endforeach
                     </ul>
                 @endif
@@ -71,6 +53,62 @@
     </div>
 
     <script src="{{ asset('js/app.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const categoryDropdown = document.getElementById('category_dropdown');
+            const categoryInput = document.getElementById('category-input');
+            const subcategoryInput = document.getElementById('subcategory-input');
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            categoryDropdown.addEventListener('change', function () {
+                const selectedCategory = categoryDropdown.value;
+                if (selectedCategory) {
+                    categoryInput.style.display = 'none';
+                    subcategoryInput.style.display = 'block';
+                } else {
+                    categoryInput.style.display = 'block';
+                    subcategoryInput.style.display = 'none';
+                }
+            });
+
+            document.getElementById('add-category').addEventListener('click', function () {
+                const name = document.getElementById('category_name').value;
+                fetch('/categories', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({ name })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        }
+                    })
+            });
+
+            document.getElementById('add-subcategory').addEventListener('click', function () {
+                const name = document.getElementById('subcategory_name').value;
+                const parentId = categoryDropdown.value;
+                fetch('/subcategories', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({ name, parent: parentId })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        }
+                    })
+            });
+        });
+    </script>
 </body>
 
 </html>

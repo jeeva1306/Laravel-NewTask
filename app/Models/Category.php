@@ -11,11 +11,13 @@ class Category extends Model
 
     protected $fillable = ['name', 'parent'];
 
-    public function child() {
+    public function child()
+    {
         return $this->hasMany(Category::class, 'parent');
     }
 
-    public function parent() {
+    public function parent()
+    {
         return $this->belongsTo(Category::class, 'parent');
     }
 }
