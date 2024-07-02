@@ -20,5 +20,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [CategoryController::class, 'index'])->name('categories.index');
 Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
+Route::get('/categories/{parentId}/child', [CategoryController::class, 'getChild']);
 Route::post('/subcategories', [CategoryController::class, 'storeSubcategory'])->name('subcategories.store');
-Route::get('/subcategories/{parentId}', [CategoryController::class, 'getSubcategories'])->name('categories.getSubcategories');
+// Route::get('/subcategories/{parentId}', [CategoryController::class, 'getSubcategories'])->name('categories.getSubcategories');

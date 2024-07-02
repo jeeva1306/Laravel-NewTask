@@ -43,4 +43,10 @@ class CategoryController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function getChild($parentId) {
+        $childCategories = Category::where('parent', $parentId)->get();
+
+        return response()->json($childCategories);
+    }
+
 }
